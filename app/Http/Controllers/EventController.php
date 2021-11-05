@@ -102,13 +102,21 @@ class EventController extends Controller
 
     public function edit($id){
 
+        $user = auth()->user();
+
         $event = Event::findOrFail($id);
+
+        if($user->id != $event->user->id){
+            return redirect ('/dashboard');
+        }
 
         return view('events.edit', ['event' => $event]);
 
     }
 
     public function update(Request $request){
+
+       
 
         Event::findOrFail($request->id)->update($request->all());
 
@@ -127,6 +135,17 @@ class EventController extends Controller
 
         return redirect('/dashboard')->with('msg', 'Sua presença foi confirmada no evento ' . $event->title);
 
+
+        }
+        public function leaveEvent($id){
+            
+            $user = auth()->user();
+
+            $user->eventsAsParticipant()->detach($id);
+
+            $event = Event::findOrFail($id);
+            
+            return redirect('/dashboard')->with('msg', 'Você saiu com sucesso do evento ' . $event->title);
 
         }
     }
